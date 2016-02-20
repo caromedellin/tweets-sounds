@@ -38,7 +38,19 @@ function analyzeTweet(tweetText, allTweetTexts){
   allTweetTexts.forEach(function(tweet) {
     if (tweetText != tweet){
       request(sentimentURI + tweetText + '&phrase2=' + tweet, function (error, response, body) {
-        tweetRelations.push(parseFloat(body.replace(/\r?\n|\r/g,'')));
+        var relation = parseFloat(body.replace(/\r?\n|\r/g,''));
+
+        if(body === '' || body === ' ') {
+          relation = 0;
+        }
+
+        if (relation > 1){
+          console.log(tweetText);
+        }
+
+        tweetRelations.push(relation);
+
+
         if (tweetRelations.length > 18){
           var loudness = ((tweetText.length - tweetText.replace(/[A-Z]/g, '').length) / tweetText.length);  
           analyzedTweets.push({
@@ -73,7 +85,7 @@ client.get('statuses/user_timeline', params, function(error, tweets, response){
 
 
 function write_file(twitterQuery, analyzedTweets){
-	fs.writeFile("/tmp/" + twitterQuery + '.json', JSON.stringify(analyzedTweets), function(err) {
+	fs.writeFile("" + twitterQuery + '.json', JSON.stringify(analyzedTweets), function(err) {
     if(err) {
         return console.log(err);
     }
