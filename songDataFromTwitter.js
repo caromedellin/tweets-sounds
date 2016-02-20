@@ -33,7 +33,7 @@ var params = {screen_name: twitterQuery};
 
 
 var analyzedTweets = [];
-function analyzeTweet(tweetText, allTweetTexts){
+function analyzeTweet(tweetText, allTweetTexts, rawTweet){
   var tweetRelations = new Array;
   allTweetTexts.forEach(function(tweet) {
     if (tweetText != tweet){
@@ -44,22 +44,18 @@ function analyzeTweet(tweetText, allTweetTexts){
           relation = 0;
         }
 
-        if (relation > 1){
-          console.log(tweetText);
-        }
-
         tweetRelations.push(relation);
-
-
-        if (tweetRelations.length > 18){
+        if (tweetRelations.length > numTweets - 2){
           var loudness = ((tweetText.length - tweetText.replace(/[A-Z]/g, '').length) / tweetText.length);  
           analyzedTweets.push({
             'similarity': tweetRelations,
             'loudness': loudness,
-            'sentiment':  sentiment(tweetText).score
+            'sentiment':  sentiment(tweetText).score,
+            'hashtags': rawTweet.entities.hashtags.length
           }); 
-          if (analyzedTweets.length > 18){
+          if (analyzedTweets.length > numTweets - 2){
             write_file(twitterQuery, analyzedTweets);
+            return true;
           }
         }
       });
@@ -68,8 +64,10 @@ function analyzeTweet(tweetText, allTweetTexts){
   return tweetRelations;
 }
 
+numTweets = 0;
 client.get('statuses/user_timeline', params, function(error, tweets, response){
   if (!error) {
+    numTweets = tweets.length;
     var allTweetTexts = [];
     for (var i = 0; i < tweets.length; i++){
       allTweetTexts.push(tweets[i].text);
@@ -77,7 +75,7 @@ client.get('statuses/user_timeline', params, function(error, tweets, response){
   	for (var i = 0; i < tweets.length; i++){
   		var text = tweets[i].text;
   		if (i > 0){
-  			var analyzedTweet = analyzeTweet(tweets[i].text, allTweetTexts);
+  			var analyzedTweet = analyzeTweet(tweets[i].text, allTweetTexts, tweets[i]);
   		}
   	}
   }
