@@ -56,7 +56,7 @@ class Chunk():
 
         self.resetBeatPitsAndDurs()
 
-    def __init__(self, pits = [], durs = [], chord = [], sub_chunks = None, key = 0, name='', scale = [0,2,4,5,7,9,11]):
+    def __init__(self, pits = [], durs = [], chord = [], sub_chunks = None, key = 0, name='', scale = [0,2,4,5,7,9,11], dynamics = 'mf'):
         self.sub_chunks = sub_chunks
         self.name = name
         self.chord = chord

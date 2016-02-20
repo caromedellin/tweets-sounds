@@ -7,8 +7,9 @@ from constants import *
 def cellsToPart(cells, octave = 5):
     notes = []
     for cell in cells:
+
         degrees = cell.pits
-        pits = sc.degreesToNotes(degrees, octave = 5, scale = [j + cell.key for j in scales['major']])
+        pits = sc.degreesToNotes(degrees, octave = octave, scale = cell.scale)
         durs = cell.durs
         for i in range(0, len(pits)):
             if durs[i] > 0:
