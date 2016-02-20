@@ -33,28 +33,39 @@ var params = {screen_name: twitterQuery};
 
 
 var analyzedTweets = [];
-function analyzeTweet(tweetText, previousTweetText){
-	request(sentimentURI + tweetText + '&phrase2=' + previousTweetText, function (error, response, body) {
-		var loudness = ((tweetText.length - tweetText.replace(/[A-Z]/g, '').length) / tweetText.length);  
-		analyzedTweets.push({
-			'similarity': parseFloat(body.replace(/\r?\n|\r/g,'')),
-			'loudness': loudness,
-			'sentiment':  sentiment(tweetText).score
-		});	
-		if (analyzedTweets.length > 18){
-			write_file(twitterQuery, analyzedTweets);
-		}
-	});
+function analyzeTweet(tweetText, allTweetTexts){
+  var tweetRelations = new Array;
+  allTweetTexts.forEach(function(tweet) {
+    if (tweetText != tweet){
+      request(sentimentURI + tweetText + '&phrase2=' + tweet, function (error, response, body) {
+        tweetRelations.push(parseFloat(body.replace(/\r?\n|\r/g,'')));
+        if (tweetRelations.length > 18){
+          var loudness = ((tweetText.length - tweetText.replace(/[A-Z]/g, '').length) / tweetText.length);  
+          analyzedTweets.push({
+            'similarity': tweetRelations,
+            'loudness': loudness,
+            'sentiment':  sentiment(tweetText).score
+          }); 
+          if (analyzedTweets.length > 18){
+            write_file(twitterQuery, analyzedTweets);
+          }
+        }
+      });
+    }
+  });
+  return tweetRelations;
 }
 
 client.get('statuses/user_timeline', params, function(error, tweets, response){
   if (!error) {
+    var allTweetTexts = [];
+    for (var i = 0; i < tweets.length; i++){
+      allTweetTexts.push(tweets[i].text);
+    }
   	for (var i = 0; i < tweets.length; i++){
   		var text = tweets[i].text;
-  		console.log(tweets[i].text);
-  		console.log(sentiment(text));
   		if (i > 0){
-  			var analyzedTweet = analyzeTweet(tweets[i].text, tweets[i-1].text);
+  			var analyzedTweet = analyzeTweet(tweets[i].text, allTweetTexts);
   		}
   	}
   }
