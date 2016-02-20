@@ -23,8 +23,12 @@ for i in range(0,20):
             found = True
             break
     if not found:
-        cells.append(gc.genCell(2.0, cells[-1].pits[-1]))
-        cells.append(gc.genCell(2.0, cells[-1].pits[-1]))
+        if random.uniform(0,1) < 0.5:
+            cells.append(gc.genCell(2.0, cells[-1].pits[-1]))
+            cells.append(gc.genCell(2.0, cells[-1].pits[-1]))
+        else:
+            cells.append(gc.genCell(2.0, cells[-1].pits[-1]))
+            cells.append(tf.transformCell(cells[-1], cells[-1]))
 
 part = mh.cellsToPart(cells)
 part.show()
